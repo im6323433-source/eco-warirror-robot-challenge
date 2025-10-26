@@ -1,0 +1,325 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Eco-Warrior Robot</title>
+<style>
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    background: linear-gradient(270deg,#ff00ff,#00ffff,#ffff00,#00ff00,#ff0000,#ff6600);
+    background-size:1200% 1200%;
+    animation: neonBG 15s ease infinite;
+    color: black;
+}
+@keyframes neonBG{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+.page{
+    position:absolute;
+    left:0; top:0;
+    width:100vw; height:100vh;
+    display:flex;
+    align-items:center; justify-content:center;
+    padding:40px;
+    box-sizing:border-box;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .5s ease, transform .5s ease;
+    transform:translateY(10px);
+}
+.page.active{
+    opacity:1;
+    pointer-events:auto;
+    transform:translateY(0);
+}
+h1{font-size:64px; margin:6px 0;}
+h2{font-size:44px; margin:6px 0;}
+p{font-size:26px; margin:12px auto; max-width:980px; text-align:center;}
+.btn{
+    padding:18px 48px;
+    font-size:26px;
+    font-weight:700;
+    color:black;
+    background:#00ffcc;
+    border:4px solid black;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.25s all ease;
+    margin:12px;
+}
+.btn:hover{background:black; color:#00ffcc;}
+#page-home .btn{display:block; margin:50px auto 0 auto;}
+#gameArea{
+    width:640px; height:640px;
+    border-radius:20px;
+    border:5px solid black;
+    background:rgba(255,255,255,.3);
+    position:relative;
+    overflow:hidden;
+}
+.robot,.item{
+    position:absolute;
+    width:60px; height:60px;
+    text-align:center;
+    font-size:38px;
+    line-height:60px;
+}
+.robot{background:transparent;}
+#quizBtn{
+    position:absolute;
+    top:50%;
+    right:20px;
+    transform:translateY(20%);
+    z-index:99;
+    display:none;
+}
+.quiz-wrap{width:100%; max-width:1100px; margin:auto; text-align:center;}
+.quiz-question{font-size:34px; margin-bottom:18px; font-weight:700;}
+.quiz-option{
+    display:block;
+    width:70%;
+    margin:12px auto;
+    padding:16px 18px;
+    font-size:24px;
+    background:rgba(255,255,255,.9);
+    border-radius:10px;
+    border:3px solid black;
+    cursor:pointer;
+    transition:.18s all ease;
+    text-align:left;
+    box-sizing:border-box;
+}
+.quiz-option:hover{background:#00ffcc;color:black;}
+.quiz-option.correct{background:#b7ffdf!important; border-color:#00885f;}
+.quiz-option.wrong{background:#ffb7b7!important; border-color:#8b0000;}
+.answer-text{font-size:22px;margin-top:14px;font-weight:700;}
+.benefit-list{max-width:1000px;margin:18px auto;text-align:left;}
+.benefit-item{background:rgba(255,255,255,.85);padding:16px 18px;margin:12px 0;border-radius:12px;border:3px solid black;font-size:26px;}
+#benefitsBtn{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99;}
+@media(max-width:900px){
+    #gameArea{width:90vw;height:90vw}
+    .robot,.item{width:8vw;height:8vw;font-size:6vw;line-height:8vw}
+    h1{font-size:38px} h2{font-size:28px}
+    .btn{padding:14px 28px;font-size:20px}
+    .quiz-option{width:92%; font-size:20px}
+    .benefit-item{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <div>
+    <h1>🌱 Virtual Eco-Warrior Robot</h1>
+    <p>Team: Ismail Majid, Numan Hafiz, Ayush Gupta</p>
+    <button class="btn" onclick="startGameAndGo();">Start Game</button>
+  </div>
+</div>
+
+
+<!-- GAME PAGE -->
+<div class="page" id="page-game">
+  <div style="max-width:1200px;width:100%;text-align:center;position:relative;">
+    <h2>Robot Eco-Game</h2>
+    <p>Use arrow keys to move the robot. Collect environmental items!</p>
+    <div id="gameArea"><div class="robot" id="robot">🤖</div></div>
+    <div id="scoreBoard">Score: 0</div>
+    <div id="gameTimer">Time left: 30s</div>
+    <button class="btn" id="quizBtn" onclick="goTo('page-quiz');startQuiz();">Next → Quiz</button>
+  </div>
+</div>
+
+
+<!-- QUIZ PAGE -->
+<div class="page" id="page-quiz">
+  <div style="width:100%;max-width:1200px;text-align:center;">
+    <h2>Eco-Quiz</h2>
+    <div class="quiz-wrap">
+      <div id="quizArea"></div>
+      <div id="quizAnswer" class="answer-text"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- BENEFITS PAGE -->
+<div class="page" id="page-benefits">
+  <div style="width:100%;max-width:1200px;">
+    <h2>Benefits of Eco-Warrior Robotics</h2>
+    <div class="benefit-list">
+      <div class="benefit-item">1) Promotes environmental awareness</div>
+      <div class="benefit-item">2) Encourages recycling and waste segregation</div>
+      <div class="benefit-item">3) Saves natural resources</div>
+      <div class="benefit-item">4) Supports sustainable living</div>
+      <div class="benefit-item">5) Teaches children about ecology</div>
+      <div class="benefit-item">6) Combines robotics with social impact</div>
+      <div class="benefit-item">7) Inspires creativity and innovation</div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const benefitsBtn=document.getElementById('benefitsBtn');
+
+
+function goTo(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='page-benefits'){benefitsBtn.style.display='none';}
+}
+
+
+/* Start Game Button */
+function startGameAndGo(){
+  goTo('page-game');
+  startGame();
+}
+
+
+/* Game Logic */
+const gameArea=document.getElementById('gameArea'),
+      robot=document.getElementById('robot'),
+      scoreBoard=document.getElementById('scoreBoard'),
+      gameTimerEl=document.getElementById('gameTimer'),
+      quizBtn=document.getElementById('quizBtn');
+
+
+let gameWidth,gameHeight;
+function resizeGame(){gameWidth=gameArea.clientWidth;gameHeight=gameArea.clientHeight;}
+window.addEventListener('resize',resizeGame);resizeGame();
+
+
+let robotPos={x:10,y:10},items=[],score=0,gameTime=30,gameInterval;
+const envEmojis=["🌳","♻️","💧","🗑️","🌱","🍃","☀️"];
+
+
+function placeItems(count=10){
+    items.forEach(it=>it.remove()); items=[];
+    for(let i=0;i<count;i++){
+        const it=document.createElement('div');
+        it.className='item';
+        it.textContent=envEmojis[Math.floor(Math.random()*envEmojis.length)];
+        it.style.left=Math.floor(Math.random()*(gameWidth-60))+'px';
+        it.style.top=Math.floor(Math.random()*(gameHeight-60))+'px';
+        gameArea.appendChild(it);
+        items.push(it);
+    }
+}
+robot.style.left=robotPos.x+'px';
+robot.style.top=robotPos.y+'px';
+placeItems(10);
+
+
+function checkCollision(){
+    const rRect=robot.getBoundingClientRect();
+    for(let i=items.length-1;i>=0;i--){
+        const itRect=items[i].getBoundingClientRect();
+        if(!(rRect.right<itRect.left||rRect.left>itRect.right||rRect.bottom<itRect.top||rRect.top>itRect.bottom)){
+            items[i].remove();
+            items.splice(i,1);
+            score++;
+            scoreBoard.textContent='Score: '+score;
+        }
+    }
+}
+
+
+document.addEventListener('keydown',e=>{
+    const active=document.querySelector('.page.active');
+    if(!active||active.id!=='page-game')return;
+    const step=16;
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault();
+    if(e.key==='ArrowUp')robotPos.y=Math.max(0,robotPos.y-step);
+    if(e.key==='ArrowDown')robotPos.y=Math.min(gameHeight-robot.clientHeight,robotPos.y+step);
+    if(e.key==='ArrowLeft')robotPos.x=Math.max(0,robotPos.x-step);
+    if(e.key==='ArrowRight')robotPos.x=Math.min(gameWidth-robot.clientWidth,robotPos.x+step);
+    robot.style.left=robotPos.x+'px';
+    robot.style.top=robotPos.y+'px';
+    checkCollision();
+});
+
+
+function startGame(){
+    score=0; robotPos={x:10,y:10};
+    robot.style.left=robotPos.x+'px';
+    robot.style.top=robotPos.y+'px';
+    placeItems(10);
+    gameTime=30;
+    gameTimerEl.textContent='Time left: 30s';
+    quizBtn.style.display='inline-block';
+    clearInterval(gameInterval);
+    gameInterval=setInterval(()=>{
+        gameTime--;
+        gameTimerEl.textContent='Time left: '+gameTime+'s';
+        if(gameTime<=0){clearInterval(gameInterval);}
+    },1000);
+}
+
+
+/* Quiz Logic */
+const quizQuestions=[
+    {q:"1) What is the most recyclable material?",options:["Plastic","Glass","Metal","Paper"],ans:1},
+    {q:"2) Which gas is mainly responsible for global warming?",options:["Oxygen","Nitrogen","Carbon Dioxide","Hydrogen"],ans:2},
+    {q:"3) Which activity helps conserve water?",options:["Leaving taps open","Fixing leaks","Overwatering plants","Washing car daily"],ans:1},
+    {q:"4) What should you do with electronic waste?",options:["Throw in trash","Recycle properly","Burn it","Bury it"],ans:1},
+    {q:"5) Planting trees helps to:",options:["Pollute air","Reduce CO2","Increase soil erosion","Waste water"],ans:1},
+    {q:"6) What is composting?",options:["Burning waste","Recycling food waste","Throwing in river","Using chemicals"],ans:1},
+    {q:"7) Energy saving can be done by:",options:["Leaving lights on","Using LED bulbs","Overcharging devices","Wasting electricity"],ans:1}
+];
+
+
+let quizIndex=0,correctCount=0,wrongCount=0;
+const quizArea=document.getElementById('quizArea'),quizAnswer=document.getElementById('quizAnswer');
+
+
+function startQuiz(){
+    quizIndex=0; correctCount=0; wrongCount=0;
+    renderQuiz();
+}
+
+
+function renderQuiz(){
+    quizArea.innerHTML=''; quizAnswer.textContent='';
+    if(quizIndex>=quizQuestions.length){
+        quizArea.innerHTML=`<div class="quiz-question">🎉 Quiz Completed!</div>
+                            <p>Correct Answers: ${correctCount}</p>
+                            <p>Wrong Answers: ${wrongCount}</p>`;
+        benefitsBtn.style.display='inline-block';
+        return;
+    }
+    const q=quizQuestions[quizIndex];
+    const qDiv=document.createElement('div'); qDiv.className='quiz-question'; qDiv.textContent=q.q;
+    quizArea.appendChild(qDiv);
+
+
+    q.options.forEach((opt,i)=>{
+        const btn=document.createElement('div');
+        btn.className='quiz-option';
+        btn.textContent=opt;
+        btn.tabIndex=0;
+        btn.addEventListener('click',()=>selectOption(i,q.ans,btn));
+        btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.keyCode===13){e.preventDefault();selectOption(i,q.ans,btn);}});
+        quizArea.appendChild(btn);
+    });
+}
+
+
+function selectOption(sel,correct,btn){
+    document.querySelectorAll('.quiz-option').forEach(b=>b.style.pointerEvents='none');
+    if(sel===correct){btn.classList.add('correct'); quizAnswer.textContent='✅ Correct!'; correctCount++;}
+    else{btn.classList.add('wrong'); quizAnswer.textContent=`❌ Wrong! Correct: ${quizQuestions[quizIndex].options[correct]}`; wrongCount++;}
+    setTimeout(()=>{quizIndex++; renderQuiz();},1500);
+}
+</script>
+</body>
+</html>
